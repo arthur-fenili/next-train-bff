@@ -1,0 +1,18 @@
+# Ambiente
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Descoberta de códigos (dados locais, não vão ao ar)
+discovered_codes*.json
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
