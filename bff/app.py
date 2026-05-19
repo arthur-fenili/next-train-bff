@@ -20,7 +20,28 @@ app.add_middleware(
 )
 
 SUPPORTED_LINES = {"L8", "L9"}
+
+# Terminais de cada linha: [primeiro da lista (índice 0), último operacional]
+# Usados para enriquecer a resposta com o campo `sentido`.
+TERMINALS: dict[str, tuple[str, str]] = {
+    "L8": ("Júlio Prestes", "Itapevi"),
+    "L9": ("Osasco",        "Varginha"),
+}
+
 api = ViaMobilidadeAPI()
+
+
+def _sentido(linha: str, estacao_origem: str, estacao_destino: str) -> str:
+    """Determina o terminal (sentido) do trem comparando posição na lista de estações."""
+    codes = [s["code"] for s in STATIONS.get(linha, [])]
+    try:
+        idx_origem  = codes.index(estacao_origem)
+        idx_destino = codes.index(estacao_destino)
+    except ValueError:
+        return estacao_destino  # fallback: retorna o código se não encontrar
+
+    first, last = TERMINALS.get(linha, (estacao_destino, estacao_destino))
+    return last if idx_destino > idx_origem else first
 
 
 @app.get("/lines")
@@ -79,6 +100,7 @@ def get_next_train(
             "estacao_origem": t.estacao_origem,
             "estacao_destino": t.estacao_destino,
             "estacao_origem_trem": t.estacao_origem_trem,
+            "sentido": _sentido(linha, t.estacao_origem, t.estacao_destino),
             "proximo_em_segundos": t.proximo_em,
             "proximo_em_minutos": t.proximo_em_minutos,
             "hora_previsto_chegada": t.hora_previsto_chegada,
