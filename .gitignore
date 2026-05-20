@@ -1,4 +1,4 @@
-# Ambiente
+# Ambiente — NUNCA commitar o .env real
 .env
 .venv/
 venv/
@@ -16,4 +16,3 @@ discovered_codes*.json
 # OS
 .DS_Store
 Thumbs.db
-.env.example
