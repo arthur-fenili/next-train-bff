@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from fastapi import FastAPI, HTTPException, Path
@@ -5,6 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("next-train-bff")
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -92,9 +100,12 @@ def get_next_train(
     if estacao not in known_codes:
         raise HTTPException(status_code=404, detail=f"Estação {estacao} não encontrada na {linha}")
 
+    logger.info("next-train | linha=%s estacao=%s", linha, estacao)
+
     try:
         trens = api.proximos_trens(linha, estacao)
     except Exception as e:
+        logger.error("next-train | linha=%s estacao=%s | erro: %s", linha, estacao, e)
         raise HTTPException(status_code=502, detail=f"Erro ao consultar API Via Mobilidade: {e}")
 
     return [
